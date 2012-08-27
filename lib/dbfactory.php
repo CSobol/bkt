@@ -30,8 +30,13 @@ class dbFactory {
     function setQueryString($queryString){
         $this->queryString = $queryString;
     }
-    function query($tblName,$fields,$params){
-        
+    function query($tblName,$queryParams = false){
+        $this->queryObject = $conn->prepare($SQL);
+        if($queryParams){
+            foreach ($queryParams as $key => $value) {
+                $this->queryObject->bindParam($key, $value);
+            }
+        }
     }
 }
 

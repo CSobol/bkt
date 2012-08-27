@@ -1,5 +1,6 @@
 <?php
-require_once('../lib/includes.php');
+define('__ROOT__',dirname(dirname(__FILE__)));
+require_once(__ROOT__ . '/lib/includes.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

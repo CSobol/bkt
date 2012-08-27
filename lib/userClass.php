@@ -11,6 +11,9 @@
  * @author Chris
  */
 class userClass {
+    public static function checkIfUserIsLoggedIn(){
+        return !!$_SESSION['user'];
+    }
     //put your code here
 }
 

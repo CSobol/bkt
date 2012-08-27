@@ -40,3 +40,4 @@ Thumbs.db
 # Project specific files #
 ##########################
 lib/constants.php
+/nbproject/private/

@@ -5,7 +5,7 @@
  * @author Chris
  */
 class dbFactory {
-    private $con, $accessLevel, $dbhost = __DB_HOST__, $dbname = __DB_NAME__, $dbuser, $dbpass, $queryObject, $queryString;
+    private $con, $accessLevel, $dbhost = __DB_HOST__, $dbname = __DB_NAME__, $dbuser, $dbpass, $queryObject, $queryString, $queryResult;
     //put your code here
     public function __construct($accessLevel) {
         switch ($accessLevel) {
@@ -25,18 +25,20 @@ class dbFactory {
                 $this->dbpass = __DB_PASSWORD_READ__;
                 break;
         }
-        $this->con = new PDO("mysql:host=$dbhost;dbname=$dbname",$dbuser,$dbpass);
+        $this->con = new PDO("mysql:host=".$this->dbhost.";dbname=".$this->dbname,$this->dbuser,  $this->dbpass);
     }
     function setQueryString($queryString){
         $this->queryString = $queryString;
     }
-    function query($tblName,$queryParams = false){
-        $this->queryObject = $conn->prepare($SQL);
+    function query($queryParams = false){
+        $this->queryObject = $this->con->prepare($this->queryString);
         if($queryParams){
             foreach ($queryParams as $key => $value) {
-                $this->queryObject->bindParam($key, $value);
+                $this->queryObject->bindValue($key, $value);
             }
         }
+        $this->queryResult = $this->queryObject->execute();
+        print_r($this->queryResult);
     }
 }
 

@@ -6,7 +6,7 @@
  * @author Chris
  */
 class userAccountActions {
-
+    var $errorStatus, $salt, $userName, $password, $eMail;
     public static function validateUserName($userId) {
         $dataConnection = new dbFactory('write');
         $validName = preg_match('/^[a-zA-Z0-9]{3,50}$/', $userName);

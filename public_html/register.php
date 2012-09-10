@@ -92,8 +92,9 @@ require_once('../lib/includes.php');
                         }else{
                             //FORM SUBMIT
                                 //PASSED CAPTCHA
-                                include("library/passwordchallenge.php");
-                                $newUser = new registerIt($_POST['username'], $_POST['password'], $_POST['confirmPassword'], $_POST['email']);
+                                //include("library/passwordchallenge.php");
+                                $newUser = new userAccountActions($_POST['username'], $_POST['password'], $_POST['confirmPassword'], $_POST['email']);
+                                
                                 //$newUser->setUname($_POST['username'], $_POST['password'], $_POST['confirmPassword'], $_POST['email']);
                                 if($newUser->errorStatus > 0){
                                     //FORM CONTAINS ERRORS
@@ -102,16 +103,11 @@ require_once('../lib/includes.php');
                                     echo $newUser->errorStatus;
                                 }else{
                                     //FORM HAS NO ERRORS, REGISTRATION SUCCESSFUL
-                                    $dbConnectAs = 'write';
-                                    include('/library/dbconnect.php');
-                                    $SQL = "INSERT
-                                            INTO
-                                                tblUsers
-                                                (userScreenName, passHash, passSalt, userRegistered, userEmail)
-                                            VALUES
-                                                (:userName, :password, :salt, :userSince, :userEmail)";
-                                    $q = $conn->prepare($SQL);
-                                    $q->execute(array(':userName' => $newUser->userName, ':password' => $newUser->password, ':salt' => $newUser->salt, ':userSince' => date('y-m-d', time()), ':userEmail' => $newUser->eMail));
+                                    $registrationDb = new dbFactory('write');
+                                    $registrationDb->setQueryString(__REGISTRATION_QUERY__);
+                                    //set parameters to associative array
+                                    $queryParams = array(':userName' => $newUser->userName, ':password' => $newUser->password, ':salt'=>$newUser->salt, ':userEmail'=>$newUser->eMail);
+                                    $registrationDb->query($queryParams);
                                     $msg = "Dear $newUser->userName \n\r
                                             \n\r
                                             Welcome to TweetFail.org!\n\r

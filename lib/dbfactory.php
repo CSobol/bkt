@@ -5,7 +5,7 @@
  * @author Chris
  */
 class dbFactory {
-    private $con, $accessLevel, $dbhost = __DB_HOST__, $dbname = __DB_NAME__, $dbuser, $dbpass, $queryObject, $queryString, $queryResult;
+    private $con, $accessLevel, $dbhost = __DB_HOST__, $dbname = __DB_NAME__, $dbuser, $dbpass, $queryObject, $queryString, $queryResult, $resultSet;
     //put your code here
     public function __construct($accessLevel) {
         switch ($accessLevel) {
@@ -38,7 +38,11 @@ class dbFactory {
             }
         }
         $this->queryResult = $this->queryObject->execute();
-        print_r($this->queryResult);
+        if($this->queryResult){
+            return $this->queryObject->fetch();
+        }else{
+            return false;
+        }
     }
 }
 

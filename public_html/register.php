@@ -106,26 +106,31 @@ require_once('../lib/includes.php');
                                     $registrationDb = new dbFactory('write');
                                     $registrationDb->setQueryString(__REGISTRATION_QUERY__);
                                     //set parameters to associative array
-                                    $queryParams = array(':userName' => $newUser->userName, ':password' => $newUser->password, ':salt'=>$newUser->salt, ':userEmail'=>$newUser->eMail);
+                                    $queryParams = array(':userName' => $newUser->userName, ':password' => $newUser->password, ':salt'=>$newUser->salt, ':userEmail'=>$newUser->eMail, ':confirmId'=>$newUser->confirmId);
                                     $registrationDb->query($queryParams);
                                     $msg = "Dear $newUser->userName \n\r
                                             \n\r
-                                            Welcome to TweetFail.org!\n\r
-                                            Your account requires confirmation. In order to confirm your account, you simply need to click on the link below:\n\r
+                                            Welcome to " . __SITE_TITLE__ . " The site made for people who dream big, and go even bigger.\n\r
                                             \n\r
-                                            <a href='http://localhost/tweet/confirm.php?uConfirm=".strval($newUser->confirmId)."&uName=".strval($newUser->userName)."'>http://localhost/tweet/confirm.php?uConfirm=".$newUser->confirmId."&uName=".strval($newUser->userName)."</a>\n\r
+                                            Your account requires confirmation. Just click on the link below to get started:\n\r
+                                            \n\r
+                                            \n\r
+                                            Once you've confirmed, you'll be able to start adding items to your Bukt list, planning them, 
+                                            \n\r
+                                            \n\r
+                                            <a href='" . __FQDN_SSL__ . "confirm.php?uConfirm=" . strval($newUser->confirmId)."&uName=".strval($newUser->userName)."'>http://localhost/tweet/confirm.php?uConfirm=".$newUser->confirmId."&uName=".strval($newUser->userName)."</a>\n\r
                                             \n\r
                                             Thank you very much for joining us.";
                                     $headers  = 'MIME-Version: 1.0' . "\r\n";
                                     $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
                                     $headers .= 'From: TweetFail.org <noreply@tweetfail.org>' . "\r\n";
-                                    mail($newUser->eMail, 'TweetFail.org registration. Welcome!', $msg, $headers);
+                                    mail($newUser->eMail, 'Welcome to ' . __SITE_TITLE__ . '. Let\'s get moving!', $msg, $headers);
                                     echo "Pass Hash: " . $newUser->password . " Salt: " . $newUser->salt;
                                     ?>
                                     <h1>Welcome to <a href="<?php echo __FQDN_NON_SSL__;?> "><?php echo __SITE_TITLE__; ?> </a>!</h1>
                                     <h2>Thank you for registering. An email has been sent to the address you provided.</h2>
                                     <p>Please click the link on the email, or copy and paste it into your browser's address bar to activate your account.</p>
-                                    <p>If it doesn't show up right away, please check your spam folder. While you're waiting, feel free to <a href="//">keep surfing TweetFail.org</a>, or <a href="http://www.tweetfail.org/submit/">submit a fail</a>.</p>
+                                    <p>If it doesn't show up right away, please check your spam folder. While you're waiting, feel free to <a href="/">keep surfing <?php echo __SITE_TITLE__; ?></a>.</p>
                                     <?php
                                 }
                                 //

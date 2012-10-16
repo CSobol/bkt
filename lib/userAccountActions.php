@@ -6,7 +6,9 @@
  * @author Chris
  */
 class userAccountActions {
-    var $errorStatus, $salt, $userName, $password, $eMail;
+    var $errorStatus, $salt, $userName, $password, $eMail, $tempUserObj;
+    private static $hashAlgo = '$2a';
+    private static $hashCost = '$10';
     public static function validateUserName($userId) {
         $dataConnection = new dbFactory('write');
         $validName = preg_match('/^[a-zA-Z0-9]{3,50}$/', $userName);
@@ -33,8 +35,50 @@ class userAccountActions {
         }
     }
     //END checkIfUserExists
-    
+    public static function startSession($regenerate = false){
+        session_name("Bukt");
+        session_start();
+        if($regenerate){
+            session_regenerate_id();
+        }
+    }
+    public static function authenticatePassword($password, $passHash, $salt){
+        return $passHash == self::hashPassword($password, $salt);
+    }
     public static function logUserIn($userId, $password){
+        //grab user from database
+        $loginDataBase = new dbFactory('read');
+        $SQL = 'SELECT
+                    userName,
+                    userId,
+                    passHash,
+                    passSalt,
+                    userProfileBlurb,
+                    userRegistered
+                FROM
+                    tblUsers
+                WHERE
+                    LOWER(userName)= :userName
+                OR
+                    LOWER(emailAddress) = :uName';
+        $loginDataBase->setQueryString($SQL);
+        $userObject = $loginDataBase->query(array(':userName' => $userId, ':uName' => $userId));
+        if ($userObject){
+            //see if hashes match
+            $loginSuccess = self::authenticatePassword($password, $userObject['passHash'], $userObject['passSalt']);
+            if($loginSuccess){
+                self::startSession(true);
+                $userArray = array("userId" => $userObject['userId'], "userName" => $userObject['userName'], "userPermission" => $userObject['userPermission']);
+                $_SESSION['user'] = $userArray;
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            //No username found
+            return false;
+        }
+        
         
     }
     //END logUserIn
@@ -111,31 +155,49 @@ class userAccountActions {
         }
         //END validateEmailAddress
     function verifyUserName($userName){
-        
+        //ensure userName is alphanumeric only
+        if (preg_match('/^[a-z0-9]{4,64}$/i', $userName)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public function hashPassword($password, $salt){
+        return crypt($password,  
+                    self::$hashAlgo .  
+                    self::$hashCost .  
+                    '$' . $salt);  
+    }
+    public static function generateSalt(){
+        return substr(sha1(mt_rand()),0,22);
     }
     public function __construct($userName, $password, $confirmPassword , $eMail){
             switch($password){
                 case (strlen($password) < 6);
+                    //password not long enough
                     $this->errorStatus = 1;
                 break;
                 case ($password != $confirmPassword);
+                    //password and confirmation don't match
                     $this->errorStatus = 2;
                 break;
                 default;
                     $validEmail = $this->validateEmailAddress($eMail);
                     if ($validEmail == true){
                         $userNameStatus = $this->verifyUserName($userName);
-                        if($userNameStatus == 0){
+                        if($userNameStatus){
                             $this->userName = $userName;
-                            $this->salt = sha1(uniqid());
+                            $this->salt = $this->generateSalt();
                             $this->confirmId = sha1(date('mdy'));
-                            $this->password = sha1($password.$this->salt);
+                            $this->password = $this->hashPassword($password, $this->salt);
                             $this->eMail = $eMail;
                         }else{
-                            $this->errorStatus = $userNameStatus;
+                            //username isn't alphanumeric
+                            $this->errorStatus = 3;
                         }
                     }else{
-                        $this->errorStatus = 3;
+                        //email address invalid
+                        $this->errorStatus = 4;
                     };
                 break;
             };

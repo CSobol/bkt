@@ -84,7 +84,12 @@ class userAccountActions {
     //END logUserIn
     
     public static function logUserOut($userId){
-        
+        session_start();
+        session_unset();
+        session_destroy();
+        session_write_close();
+        setcookie(session_name(),'',0,'/');
+        session_regenerate_id(true);
     }
     //END logUserOut
     
@@ -171,6 +176,21 @@ class userAccountActions {
     public static function generateSalt(){
         return substr(sha1(mt_rand()),0,22);
     }
+    public static function generateConfirmationId(){
+        return sha1(date('mdy'));
+    }
+    public static function changeUserPermission($userId, $userPermission){
+        $chgPermission = new dbFactory('write');
+        $SQL = "UPDATE
+                            tblUsers
+                        SET
+                            userPermission = $userPermission
+                        WHERE
+                            userId = $userId";
+        $chgPermission->setQuery($SQL);
+        $chgPermission->query();
+    
+    }
     public function __construct($userName, $password, $confirmPassword , $eMail){
             switch($password){
                 case (strlen($password) < 6);
@@ -188,7 +208,7 @@ class userAccountActions {
                         if($userNameStatus){
                             $this->userName = $userName;
                             $this->salt = $this->generateSalt();
-                            $this->confirmId = sha1(date('mdy'));
+                            $this->confirmId = $this->generateConfirmationId();
                             $this->password = $this->hashPassword($password, $this->salt);
                             $this->eMail = $eMail;
                         }else{

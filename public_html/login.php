@@ -7,6 +7,10 @@ if(!empty($_POST['uname'])){
     $uName = strtolower($_POST['uname']);
     $password = $_POST['password'];                
     userAccountActions::logUserIn($uName, $password);
+    if(!empty($_POST['redirectTo'])){
+        header('Location:' . $_POST['redirectTo'] . '"');
+        exit;
+    }
 }
 ?>
 <!DOCTYPE html>

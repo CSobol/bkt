@@ -1,19 +1,14 @@
 <?php
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of bucket-item
  *
  * @author Chris
  */
 class bucketItem {
-    public $title, $description, $thumb, $numBucketLists, $generalCategory, $specificCategory, $nearby, $moreInfo;
+    public $id, $title, $description, $thumb, $numBucketLists, $generalCategory, $specificCategory, $nearby, $moreInfo;
     private $wikiQuery, $imageQuery;
-    function __construct($title, $description, $thumb, $numBucketLists, $categories) {
+    function __construct($id, $title, $description, $thumb, $numBucketLists, $categories) {
+        $this->id = $id;
         $this->title = $title;
         $this->description = $description;
         $this->thumb = $thumb;
